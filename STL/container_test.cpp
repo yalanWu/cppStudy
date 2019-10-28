@@ -64,9 +64,62 @@ std::string get_a_target_string()
 	return std::string(buf);
 }
 
-void test_array(long value)
+void test_vector()
+{
+	std::cout << "\ntest vector....\n";
+	std::string target = get_a_target_string();
+
+	std::vector<std::string> v;
+	char buf[10];
+	clock_t timeStart = clock();
+
+	for (int i = 0; i < ASIZE; ++i)
+	{
+		memset(buf, 0, 10);
+		snprintf(buf, 10, "%ld", rand());
+		v.push_back(std::string(buf));
+	}
+
+	std::cout << "cost milli-seconds:" << (clock() - timeStart)  << std::endl;
+	std::cout << "vector.size =  " << v.size() << std::endl;
+	std::cout << "vector.max_size = " << v.capacity() << std::endl;
+	std::cout << "vector.front = " << v.front() << std::endl;
+	std::cout << "vector.back = " << v.back() << std::endl;
+	v.pop_back();//取出最后一个元素
+	std::cout << "vector.size =  " << v.size() << std::endl;
+
+	//全局find函数
+	timeStart = clock();
+	auto pItem = std::find(v.begin(), v.end(), target);
+	std::cout << "std::find , milli-seconds = " << (clock() - timeStart) << std::endl;
+	if (pItem == v.end())
+	{
+		std::cout << "not found " << std::endl;
+	}
+	else
+	{
+		std::cout << "found : " << *pItem << std::endl;
+	}
+	std::cout << "//全局find函数 ::find cost milli-seconds:" << (clock() - timeStart)  << std::endl;
+	//排序
+	timeStart = clock();
+	sort(v.begin(), v.end());
+	std::string* bPItem = (std::string*)bsearch(&target, v.data(), v.size(), sizeof(std::string), comparestrings);
+	std::cout << "sort + bsearch cost milli-seconds:" << (clock() - timeStart)  << std::endl;
+	if (bPItem == NULL)
+	{
+		std::cout << "not found " << std::endl;
+	}
+	else
+	{
+		std::cout << "found : " << *bPItem << std::endl;
+	}
+}
+void test_array()
 {
 	std::cout << "\ntest array....\n";
+	long target = get_a_target_long();
+
 	std::array<long, ASIZE> c;
 	clock_t timeStart = clock();
 	for (size_t i = 0; i < ASIZE; i++)
@@ -87,7 +140,7 @@ void test_array(long value)
 	std::cout << "qsort cost milli-seconds:" << (clock() - timeStart) << std::endl;
 	//查找
 	timeStart = clock();
-	long* pItem = (long*)bsearch(&value, (c.data()), ASIZE, sizeof(long), compareLongs);
+	long* pItem = (long*)bsearch(&target, (c.data()), ASIZE, sizeof(long), compareLongs);
 	std::cout << "bsearch cost milli-seconds:" << (clock() - timeStart) << std::endl;
 
 	if (pItem != NULL)
@@ -132,12 +185,14 @@ int get_a_target_container()
 int main(int argc, char* agrc[])
 {
 	int ctype = get_a_target_container();
-	long svalue = get_a_target_long();
+	
 	switch (ctype)
 	{
 	case 1:
-		test_array(svalue);
+		test_array();
 		break;
+	case 2:
+		test_vector();
 	default:
 		break;
 	}
